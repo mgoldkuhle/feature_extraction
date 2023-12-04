@@ -35,38 +35,39 @@ class FeatureExtractor:
         for patient, dates in self.patient_dates.items():    
         
             for date in dates:
-                # define path to image and segmentation mask
-                image_path = os.path.join(self.data_path, 'id_' + patient, date, patient + '_' + date + '_t1ce.nii.gz')
-                mask_path = os.path.join(self.data_path, 'id_' + patient, date, patient + '_' + date + '_t1ce_seg.nii.gz')
-                              
-                print('Extracting features for patient ' + patient + ' on date ' + date)
+                for sequence in ['t1ce', 't2']:
+                    # define path to image and segmentation mask
+                    image_path = os.path.join(self.data_path, 'id_' + patient, date, patient + '_' + date + '_' + sequence + '.nii.gz')
+                    mask_path = os.path.join(self.data_path, 'id_' + patient, date, patient + '_' + date + '_' + sequence + '_seg.nii.gz')
 
-                # execute feature extraction and save results to csv
-                # if extraction fails, skip to next patient
-                try:
-                    extracted_1 = extractor.execute(image_path, mask_path, 1)
-                    extracted_2 = extractor.execute(image_path, mask_path, 2)
-                    # Add patient and date to the beginning of the dictionaries
-                    extracted_1 = OrderedDict([('patient', patient), ('date', date), ('label', 1)] + list(extracted_1.items()))
-                    extracted_2 = OrderedDict([('patient', patient), ('date', date), ('label', 2)] + list(extracted_2.items()))
-                    print('Feature extraction succeeded for patient ' + patient + ' on date ' + date + ':')
-                    # pprint(extracted)
+                    print('Extracting ' + sequence + ' features for patient ' + patient + ' on date ' + date)
 
-                    # Convert the extracted features to a DataFrame
-                    df_1 = pd.DataFrame.from_dict(extracted_1, orient='index').transpose()
-                    df_2 = pd.DataFrame.from_dict(extracted_2, orient='index').transpose()
+                    # execute feature extraction and save results to csv
+                    # if extraction fails, skip to next patient
+                    try:
+                        extracted_1 = extractor.execute(image_path, mask_path, 1)
+                        extracted_2 = extractor.execute(image_path, mask_path, 2)
+                        # Add patient and date to the beginning of the dictionaries
+                        extracted_1 = OrderedDict([('patient', patient), ('date', date), ('sequence', sequence), ('label', 1)] + list(extracted_1.items()))
+                        extracted_2 = OrderedDict([('patient', patient), ('date', date), ('sequence', sequence), ('label', 2)] + list(extracted_2.items()))
+                        print('Feature extraction (' + sequence + ') succeeded for patient ' + patient + ' on date ' + date + ':')
+                        # pprint(extracted)
 
-                    # Concatenate the two DataFrames
-                    df_temp = pd.concat([df_1, df_2], ignore_index=True)
-                    self.df = pd.concat([self.df, df_temp], ignore_index=True)
+                        # Convert the extracted features to a DataFrame
+                        df_1 = pd.DataFrame.from_dict(extracted_1, orient='index').transpose()
+                        df_2 = pd.DataFrame.from_dict(extracted_2, orient='index').transpose()
 
-                except:
-                    print('Feature extraction failed for patient ' + patient + ' on date ' + date)
-                    if patient in self.failed:
-                        self.failed[patient].append(date)
-                    else:
-                        self.failed[patient] = [date]
-                    continue
+                        # Concatenate the two DataFrames
+                        df_temp = pd.concat([df_1, df_2], ignore_index=True)
+                        self.df = pd.concat([self.df, df_temp], ignore_index=True)
+
+                    except:
+                        print('Feature extraction (' + sequence + ') failed for patient ' + patient + ' on date ' + date)
+                        if patient in self.failed:
+                            self.failed[patient].append((date, sequence))
+                        else:
+                            self.failed[patient] = [(date, sequence)]
+                        continue
 
     def save_features(self):
         feature_path = os.path.join(self.out_path, 'extracted_features.csv')
