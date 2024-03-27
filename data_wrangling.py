@@ -1,10 +1,12 @@
+## copy scans from followup folder to example folder in the structure given by tutorial. not necessary when modifying the WORC paths according to present file structure.
+
 import os
 import shutil
 import pandas as pd
 
 # Load the CSV file
 load_path = 'C:/Users/mjgoldkuhle/ownCloud/LUMC/data/selected_features'
-growths = pd.read_csv(os.path.join(load_path, 'WORCschwannoma.csv'))
+growths = pd.read_csv(os.path.join(load_path, 'schwannoma_growths.csv'))
 
 # Iterate over each row in the CSV
 for index, row in growths.iterrows():
@@ -44,3 +46,7 @@ for index, row in growths.iterrows():
             # Copy the mask file and rename it to mask.nii.gz
             shutil.copy(os.path.join(source_path, file), mask_destination_path)
             
+# remove sequence column from growths dataframe so WORC doesnt complain
+growths = growths.drop(columns=['sequence'])
+# save to new csv
+growths.to_csv(os.path.join('D:/repos/WORC/WORCTutorial/Data/Examplefiles', 'WORCschwannoma.csv'), index=False)
