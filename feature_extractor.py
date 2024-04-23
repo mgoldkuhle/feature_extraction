@@ -7,8 +7,8 @@ import pandas as pd
 class FeatureExtractor:
     def __init__(
             self, 
-            data_path = os.path.join('//vf-DataSafe/DataSafe$/div2/radi/Brughoek_predict_1255/01_followup_cleanedup/followup_part1/'), 
-            out_path = 'C:/Users/mjgoldkuhle/ownCloud/LUMC/data/selected_features',
+            data_path = os.path.join('/exports/lkeb-hpc/mjgoldkuhle/01_data/01_followup_cleanedup'), 
+            out_path = '/exports/lkeb-hpc/mjgoldkuhle/01_data/02_VS_features',
             save_failed = True
                 ):
         self.data_path = data_path
@@ -74,7 +74,7 @@ class FeatureExtractor:
         self.df.to_csv(feature_path, index=False)
 
         if self.save_failed:
-            failed_path = os.path.join(self.out_path, 'failed_extractions.csv')
+            failed_path = os.path.join(self.out_path, 'extractions_failed.csv')
             failed_df = pd.DataFrame.from_dict(self.failed, orient='index')
             failed_df.reset_index(inplace=True)
             failed_df = failed_df.rename(columns={failed_df.columns[0]: 'patient'})
