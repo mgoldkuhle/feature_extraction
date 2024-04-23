@@ -62,6 +62,7 @@ class FeatureExtractor:
                         self.df = pd.concat([self.df, df_temp], ignore_index=True)
 
                     except:
+                        # If feature extraction fails, write that scan to a 'failed' list and continue with the next scan
                         print('Feature extraction (' + sequence + ') failed for patient ' + patient + ' on date ' + date)
                         if patient in self.failed:
                             self.failed[patient].append((date, sequence))
