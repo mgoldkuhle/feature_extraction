@@ -1,5 +1,4 @@
 ## calculate growth rates for each patients based on the diameter or volume measures of schwannoma tumors over time and create prediction label file for WORC
-## calculate growth rates for each patients based on the diameter or volume measures of schwannoma tumors over time and create prediction label file for WORC
 
 import os
 import numpy as np
